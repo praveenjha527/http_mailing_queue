@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 def mailer_service(q, queue_delay, logs_directory):
 
+    logger.setLevel(logging.INFO)
+
     if not logs_directory:
         logger.addHandler(logging.StreamHandler(sys.stdout))
     else:
@@ -29,6 +31,8 @@ def mailer_service(q, queue_delay, logs_directory):
         if not mail_data:
             time.sleep(queue_delay)
             continue
+
+        logger.info(mail_data)
 
         sender = mail_data['sender']
         receivers = mail_data['receivers']

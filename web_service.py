@@ -28,6 +28,7 @@ def create_handler_class(q):
             post_data = self.rfile.read(content_length)
             json_data = self._get_response_dict(post_data)
             json_data['id'] = self._get_id()
+            logger.info("Adding to queue: {job_id}".format(job_id=json_data['id']))
             self._add_to_queue(json_data)
             self._set_headers()
             self.wfile.write(bytes('Queued', 'UTF-8'))
@@ -45,6 +46,8 @@ def create_handler_class(q):
     return QueueHandler
 
 def run(q, port, logs_directory):
+
+    logger.setLevel(logging.INFO)
 
     if not logs_directory:
         logger.addHandler(logging.StreamHandler(sys.stdout))
