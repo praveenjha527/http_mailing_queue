@@ -1,4 +1,4 @@
-# http_mailing_queue
+# HTTP Mailing Queue
 A python 3 native mailing queue with HTTP interface for job addition. A master process forks two processes, one to bind 
 the http service for receiving jobs and the mailing service to pick up jobs and send them. Interprocess queues are used for
 the purpose of queue maintenance.
