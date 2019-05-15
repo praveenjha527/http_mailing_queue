@@ -23,7 +23,11 @@ def get_arguments():
     )
     parser.add_argument(
         '-ld', '--logs-directory', nargs='?', type=str,
-        help="Delay between picking up queued mail items"
+        help="Custom Logs Directory that should be passed to write the logs to that location "
+    )
+    parser.add_argument(
+        '-fc', '--file-conf', nargs='?', type=str,
+        help="File Configurations containing mailing service parameters. Takes precedence over environment variables."
     )
     return parser.parse_args()
 
@@ -48,7 +52,7 @@ if __name__ == '__main__':
     logger.info("Starting web service")
 
     mailer_p = multiprocessing.Process(
-        target=mailer_service, args=(q, args.queue_delay, args.logs_directory)
+        target=mailer_service, args=(q, args.queue_delay, args.logs_directory, args.file_conf)
     )
     mailer_p.start()
     logger.info("Starting mailer service")
