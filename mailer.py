@@ -3,11 +3,11 @@ import time
 import os
 import logging
 import sys
-
+import configparser
 
 logger = logging.getLogger(__name__)
 
-def mailer_service(q, queue_delay, logs_directory):
+def mailer_service(q, queue_delay, logs_directory, file_conf):
 
     logger.setLevel(logging.INFO)
 
@@ -16,11 +16,19 @@ def mailer_service(q, queue_delay, logs_directory):
     else:
         log_path = os.path.join(args.logs_directory, "mailer.log")
         logger.addHandler(logging.FileHandler(log_path))
-
-    SMTP_SERVER = os.environ.get('MAIL_SERVER')
-    SMTP_PORT = os.environ.get('ALERT_EMAIL_PORT')
-    AUTH_USER = os.environ.get('ALERT_EMAIL')
-    AUTH_PASSWORD = os.environ.get('ALERT_PASSWORD')
+    # Handling File based configuration
+    if file_conf:
+        config = configparser.ConfigParser()
+        config.read(file_conf)
+        SMTP_SEVER = config['MAIL_CONF']['MAIL_SERVER']
+        SMTP_PORT = config['MAIL_CONF']['ALERT_EMAIL_PORT']
+        AUTH_USER = config['MAIL_CONF']['ALERT_EMAIL']
+        AUTH_PASSWORD = config['MAIL_CONF']['ALERT_PASSWORD']
+    else:
+        SMTP_SERVER = os.environ.get('MAIL_SERVER')
+        SMTP_PORT = os.environ.get('ALERT_EMAIL_PORT')
+        AUTH_USER = os.environ.get('ALERT_EMAIL')
+        AUTH_PASSWORD = os.environ.get('ALERT_PASSWORD')
 
     conn = smtplib.SMTP("{server}:{port}".format(server=SMTP_SERVER, port=SMTP_PORT))
     conn.starttls()
