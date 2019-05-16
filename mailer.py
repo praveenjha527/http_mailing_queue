@@ -7,8 +7,8 @@ import configparser
 
 logger = logging.getLogger(__name__)
 
-def mailer_service(q, queue_delay, logs_directory, file_conf):
 
+def mailer_service(q, queue_delay, logs_directory, file_conf):
     logger.setLevel(logging.INFO)
 
     if not logs_directory:
@@ -20,7 +20,7 @@ def mailer_service(q, queue_delay, logs_directory, file_conf):
     if file_conf:
         config = configparser.ConfigParser()
         config.read(file_conf)
-        SMTP_SEVER = config['MAIL_CONF']['MAIL_SERVER']
+        SMTP_SERVER = config['MAIL_CONF']['MAIL_SERVER']
         SMTP_PORT = config['MAIL_CONF']['ALERT_EMAIL_PORT']
         AUTH_USER = config['MAIL_CONF']['ALERT_EMAIL']
         AUTH_PASSWORD = config['MAIL_CONF']['ALERT_PASSWORD']
@@ -53,7 +53,7 @@ def mailer_service(q, queue_delay, logs_directory, file_conf):
             q.put(mail_data)
             conn = smtplib.SMTP("{server}:{port}".format(server=SMTP_SERVER, port=SMTP_PORT))
             conn.starttls()
-            conn.login(SMTP_USER, AUTH_PASSWORD)
+            conn.login(AUTH_USER, AUTH_PASSWORD)
             time.sleep(queue_delay)
             continue
 

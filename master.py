@@ -7,11 +7,11 @@ import sys
 from web_service import run
 from mailer import mailer_service
 
-
 logger = logging.getLogger(__name__)
+MAX_QSIZE = 20
+
 
 def get_arguments():
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-p', '--port', nargs='?', default=9999, type=int,
@@ -30,6 +30,7 @@ def get_arguments():
         help="File Configurations containing mailing service parameters. Takes precedence over environment variables."
     )
     return parser.parse_args()
+
 
 if __name__ == '__main__':
 
@@ -51,8 +52,15 @@ if __name__ == '__main__':
     web_service.start()
     logger.info("Starting web service")
 
-    mailer_p = multiprocessing.Process(
-        target=mailer_service, args=(q, args.queue_delay, args.logs_directory, args.file_conf)
-    )
-    mailer_p.start()
+    # Check Size of Queue, If Greater than the MAX_QSIZE then create a pool of process
+    q_size = q.qsize()
+    if q_size >= MAX_QSIZE:
+        pool_size = q_size / MAX_QSIZE
+        mailer_pool = multiprocessing.Pool(processes=int(pool_size)+1)
+        mailer_pool.apply_async(mailer_service, args=(q, args.queue_delay, args.logs_directory, args.file_conf))
+    else:
+        mailer_p = multiprocessing.Process(
+            target=mailer_service, args=(q, args.queue_delay, args.logs_directory, args.file_conf)
+        )
+        mailer_p.start()
     logger.info("Starting mailer service")
